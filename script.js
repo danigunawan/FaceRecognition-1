@@ -11,24 +11,33 @@ async function start() {
 	const container = document.createElement('div')
 	container.style.position = 'relative'
 	document.body.append(container)
+
 	const LabeledFaceDescriptors = await loadLabeledImages()
 	const faceMatcher = new faceapi.FaceMatcher(LabeledFaceDescriptors, 0.6)
+	
 	let image
 	let canvas
+	
 	document.body.append("Loaded")
 	
-	    imageUpload.addEventListener('change', async() => {
-	    	if (image) image.remove()
-	    	if(canvas) canvas.remove()
+	imageUpload.addEventListener('change', async() => {
+	    	
+	    if (image) image.remove()
+	    if(canvas) canvas.remove()
+        
         console.log('started')
+        
         image = await faceapi.bufferToImage(imageUpload.files[0]);
         container.append(image)
+        
         canvas = faceapi.createCanvasFromMedia(image)
         container.append(canvas)
+        
         const displaysize = {width: image.width , height: image.height }
         faceapi.matchDimensions(canvas, displaysize)
         const detections = await faceapi.detectAllFaces(image).withFaceLandmarks().withFaceDescriptors()
         // document.body.append(detections.length)
+        
         const resizedDetections = faceapi.resizeResults(detections, displaysize)
         const results = resizedDetections.map( d => faceMatcher.findBestMatch(d.descriptor))
         results.forEach((result , i) => {
